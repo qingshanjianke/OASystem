@@ -1,0 +1,242 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>角色管理</title>
+    <link href="~/Content/themes/default/easyui.css" rel="stylesheet" />
+    <link href="~/Content/themes/icon.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.7.1.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.easyui.min.js"></script>
+    <script src="~/Scripts/easyui-lang-zh_CN.js"></script>
+    <script src="~/Scripts/datapattern.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#setRoleActionDiv").css("display", "none");
+            $("#addDiv").css("display", "none");
+            loadData();
+        });
+        function loadData() {
+            $('#tt').datagrid({
+                url: '/RoleInfo/GetRoleInfolist',
+                title: ' 角色数据表格',
+                width: 700,
+                height: 400,
+                fitColumns: true,  //列自适应
+                nowrap: false,
+                idField: 'ID',     //主键列的列明
+                loadMsg: ' 正在加载角色的信息. . .',
+                pagination: true,  //是否有分页
+                singleSelect: false,//是否单行选择
+                pageSize: 5,//页大小,一页有多少条数据
+                pageNumber: 1,//当前页,默认的
+                pageList: [5, 10, 15],
+                queryParams: {},//往后台传递参数
+                columns: [[     //C. userName, C. userpass,C. Email, C. RegTime
+                    { field: 'ck', checkbox: true, align: 'left', width: 50 },
+                    { field: 'ID', title: '编号', width: 80 },
+                    { field: 'RoleName', title: '角色', width: 120 },
+                    { field: 'Remark', title: '备注', width: 120 },
+                    { field: 'Sort', title: '排序', width: 120 },
+                    {
+                        field: 'SubTime', title: '时间', width: 80, align: 'right',
+                        formatter: function (value, row, index) {
+                            return (eval(value.replace(/\/Date\((\d+)\)\//gi, "new Date($1)"))).pattern("yyyy-M-d");
+                        }
+                    }
+                ]],
+
+                toolbar: [{
+                    id: 'btnAdd',
+                    text: '添加',
+                    iconCls: 'icon-add',
+                    handler: function () {
+                        addInfo();
+                    }
+                }, '-', {
+                    id: 'btnDelete',
+                    text: '删除',
+                    iconCls: 'icon-remove',
+                    handler: function () {
+                        deleteInfo();
+                    }
+                }, '-', {
+                    id: 'btnEdit',
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        showInfo();
+                    }
+                }, '-', {
+                    id: 'btnEdit',
+                    text: '为角色分配权限',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        showSetUserRoleInfo();
+                    }
+                }
+                ],
+
+            });
+        }
+        //添加角色
+        function addInfo() {
+            $("#addDiv").css("display", "block");
+            $(" #addDiv").dialog({          //将div渲染成一个对话框
+                title: '添加数据',
+                width: 300,
+                height: 200,
+                resizable: true,
+                modal: true,//定义是否将窗体显示为模式化窗口。
+
+                buttons: [{
+                    text: '确定',
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        validateCheck($("#addForm"));//在提交表单之前校验表单
+                        $("#addForm").submit();//提交表单
+                    }
+                }, {
+                    text: '取消',
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        $('#addDiv').dialog('close');
+                    }
+                }]
+            });
+
+        }
+        //validate校验表单
+        function validateCheck(validateInfo) {
+            validateInfo.validate({
+                rules: {
+                    RoleName: "required",
+                    UPwd: {
+                        required: true,
+                        minlength: 5
+                    },
+                    Remark: "required",
+                    Sort: "required"
+                },
+                messages: {
+                    RoleName: "请输入姓名",
+                    UPwd: {
+                        required: "请输入密码",
+                        minlength: "密码最少5位"
+                    },
+                    Remark: "请输入备注",
+                    Sort: "请输入排序"
+                }
+            });
+        }
+        //将序列化成json格式后日期(毫秒数)转成日期格式，
+        function ChangeDateFormat(cellval) {
+            var date = new Date(parseInt(cellval.replace("/Date(", "").replace(")/", ""), 10));
+            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+            var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            return date.getFullYear() + "-" + month + "-" + currentDate;
+        }
+
+        //添加角色成功
+        function afterAdd(data) {
+            var serverData = data.split(":");
+            if (serverData[0] == "ok") {
+                $('#addDiv').dialog('close');//对话框
+                $('#tt').datagrid("reload");
+                $('#addDiv input').val("");
+
+            }
+        }
+
+        //为角色配置权限.
+        function showSetUserRoleInfo() {
+            //判断一下用户是否选择了要修改的数据
+            var rows = $('#tt').datagrid('getSelections');//获取所选择的行
+            if (rows.length != 1) {
+                $.messager.alert("提示", "请选择要分配权限的角色", "error");
+                return;
+            }
+            $("#setRoleActionFrame").attr("src", "/RoleInfo/ShowRoleActionInfo/?id=" + rows[0].ID);
+            $("#setRoleActionDiv").css("display", "block");
+            $('#setRoleActionDiv').dialog({
+                title: '为角色分配权限数据',
+                width: 450,
+                height: 300,
+                collapsible: true,
+                maximizable: true,
+                resizable: true,
+                modal: true,
+                buttons: [{
+                    text: 'Ok',
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        var childWindow = $("#setRoleActionFrame")[0].contentWindow;
+                        childWindow.subForm();
+                    }
+                }, {
+                    text: 'Cancel',
+                    handler: function () {
+                        $('#setRoleActionDiv').dialog('close');
+                    }
+                }]
+            });
+        }
+        //表单提交后
+        function afterSetUserRole(data) {
+            if (data == "ok") {
+                $('#setRoleActionDiv').dialog('close');
+            }
+        }
+    </script>
+
+
+</head>
+<body>
+    <div>
+        @*基础内容*@
+        <div>
+            <table id="tt" style="width: 700px;" title="标题,可以使用代码进行初始化,也可以使用这种属性的方式" iconcls="icon-edit">
+            </table>
+        </div>
+        @*添加用户*@
+        <div id="addDiv">
+            @using (Ajax.BeginForm("AddRoleInfo", "RoleInfo", new
+            {
+            }, new AjaxOptions { HttpMethod = "post", OnSuccess = "afterAdd" }, new
+            {
+                id = "addForm"
+            }))
+            {
+                <table>
+                    <tr>
+                        <td>角色</td>
+                        <td><input type="text" name="RoleName" /></td>
+                    </tr>
+                    <tr>
+                        <td>备注</td>
+                        <td><input type="text" name="Remark" /></td>
+                    </tr>
+                    <tr>
+                        <td>排序</td>
+                        <td><input type="text" name="Sort" /></td>
+                    </tr>
+                </table>
+            }
+
+        </div>
+        <!--为角色分配权限-->
+        <div id="setRoleActionDiv">
+            <iframe id="setRoleActionFrame" height="250" width="440" frameborder="0">
+            </iframe>
+        </div>
+
+    </div>
+</body>
+</html>

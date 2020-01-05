@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<objects xmlns="http://www.springframework.net">
+  <!--第一条-->
+  
+  <object type="WebApp.Controllers.UserInfoController,WebApp" singleton="false" >
+    <property name="userInfoService" ref="UserInfoServiceBll" />
+    <property name="roleInfoService" ref="RoleInfoServiceBll" />
+    <property name="actionInfoService" ref="ActionInfoServiceBll" />
+
+  </object>
+  <!--第二条-->
+  <object type="WebApp.Controllers.LoginController,WebApp" singleton="false" >
+        <!--给Login控制器下的属性赋值；-->
+    <property name="userInfoService" ref="UserInfoServiceBll" />
+  </object>
+  <!--第三条-->
+  <object type="WebApp.Controllers.RoleInfoController,WebApp" singleton="false" >
+    <!--给Role控制器下的属性赋值；-->
+    <property name="roleInfoService" ref="RoleInfoServiceBll" />
+    <property name="actionInfoService" ref="ActionInfoServiceBll" />
+
+  </object>
+  <!--第四条-->
+  <object type="WebApp.Controllers.HomeController,WebApp" singleton="false" >
+    <!--给Home控制器下的属性赋值；-->
+    <property name="userInfoService" ref="UserInfoServiceBll" />
+
+  </object>
+  
+  <!--第5条-->
+  <object type="WebApp.Controllers.BaseController,WebApp" singleton="false" >
+    <!--给base控制器下的属性赋值；-->
+    <property name="userInfoService" ref="UserInfoServiceBll" />
+    <property name="actionInfoService" ref="ActionInfoServiceBll" />
+  </object>
+  
+  <!--intentionally do NOT register the AccountController or the ValuesController with the container; demonstrates that the underlying
+  default controller factory will properly (attempt to!) resolve all controllers not registered with Spring.NET
+  using its default controller resolution behavoir-->
+  <!--<object type="Spring.Mvc4QuickStart.Controllers.AccountController, Spring.Mvc4QuickStart" singleton="false" />-->
+  <!--<object type="Spring.Mvc4QuickStart.Controllers.ValuesController, Spring.Mvc4QuickStart" singleton="false" />-->
+</objects>

@@ -1,0 +1,58 @@
+﻿@{
+    Layout = null;
+}
+@using Modal
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>为角色分配权限</title>
+    <script src="~/Scripts/jquery-1.7.1.min.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        function subForm() {
+            $("#setRoleActionForm").submit();
+        }
+        function afterSet(data) {
+            window.parent.afterSetUserRole(data);
+        }
+    </script>
+</head>
+<body>
+    <div>
+        为  @{
+            RoleInfo roleInfo = ViewBag.roleInfo;
+            <span style="font-size:14px;color:red;font-weight:bold"> @roleInfo.RoleName</span>
+
+        }  角色分配权限<br />
+
+        <!--form在提交之后才执行action操作-->
+        @{
+            using (Ajax.BeginForm("SetRoleActionInfo", "RoleInfo", new { }, new AjaxOptions() { OnSuccess = "afterSet", HttpMethod = "post" }, new { id = "setRoleActionForm" }))
+            {
+                <input type="hidden" name="roleId" value="@roleInfo.ID" />
+                <!--页面上所有的角色.-->
+                List<ActionInfo> allActionList = ViewBag.actionList;
+                <!--要分配角色的用户以前具有了哪些角色编号。-->
+                List<int> actionIdList = ViewBag.actionIdList;
+
+                foreach (var actionInfo in allActionList)
+                {
+                    var actionName = "cba_" + actionInfo.ID;
+                    if (actionIdList.Contains(actionInfo.ID))
+                    {
+
+                        <input type="checkbox" name="@actionName" value="@actionInfo.ID" checked="checked" />@actionInfo.ActionInfoName<br />
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="@actionName" value="@actionInfo.ID" />@actionInfo.ActionInfoName<br />
+                    }
+                }
+            }
+        }
+
+    </div>
+</body>
+</html>

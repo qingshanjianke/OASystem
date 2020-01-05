@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<objects>
+  <!--由Spring容器来New一个对象，那么这个对象肯定就是他本身，而不是接口，接口也不能new啊-->
+  <object name ="UserInfoServiceBll" type="BLL.UserInfoServiceBll, BLL" singleton="false" >
+  </object>
+
+  <object name ="RoleInfoServiceBll" type="BLL.RoleInfoServiceBll, BLL" singleton="false" >
+  </object>
+
+  <object name ="ActionInfoServiceBll" type="BLL.ActionInfoServiceBll, BLL" singleton="false" >
+  </object>
+  
+</objects>

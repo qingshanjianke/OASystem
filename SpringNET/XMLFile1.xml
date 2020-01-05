@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<objects xmlns="http://www.springframework.net">
+  <description>An  example that demonstrates simple IoC features.</description>
+  <object name="UserInfoService"  type="SpringNET.UserInfoService,SpringNET">
+    <property name="Name" value="张三"/>
+    <property name="Person" ref="Person"/>
+  </object>
+  <object name="Person"  type="SpringNET.Person,SpringNET">
+    <property name="Age" value="16"/>
+  </object>
+</objects>
+
+
